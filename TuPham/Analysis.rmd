@@ -1,0 +1,87 @@
+```{r}
+# Code for libraries
+library(dplyr)
+library(ggplot2)
+library(viridis)
+library(gridExtra)
+```
+```{r}
+# Number of questions by category (bar)
+question_data <- read.csv("questions.csv")
+categories_list <- split(question_data, question_data$Category)
+categories_count <- sapply(categories_list, nrow)
+category_bar_plot <- barplot(categories_count, 
+        xlab = "Category", 
+        ylab = "Number of questions", 
+        main = "Questions by category",
+        col = viridis(length(categories_count)))
+legend("topright",
+        legend = names(categories_count), 
+        fill = viridis(length(categories_count)), 
+        cex = 1)
+```
+```{r}
+# Number of questions by category (pie)
+category_pie <- pie(categories_count, 
+    main = "Questions by category", 
+    col = viridis(length(categories_count)))
+legend("topright",
+        legend = names(categories_count), 
+        fill = viridis(length(categories_count)), 
+        cex = 0.8)
+```
+```{r}
+# Number of questions by subcategory (bar)
+subcategories_list <- split(question_data, question_data$Subcategory)
+subcategories_count <- sapply(subcategories_list, nrow)
+subcategory_bar_plot <- barplot(subcategories_count, 
+        xlab = "Subategory", 
+        ylab = "Number of questions", 
+        main = "Questions by subcategory")
+```
+```{r}
+# Number of questions by state (pie)
+state_data <- read.csv("statesites.csv")
+question_state_data <- inner_join(question_data, state_data, by = "StateAbbr")
+states_list <- split(question_state_data, question_state_data$StateAbbr)
+states_count <- sapply(states_list, nrow)
+state_pie <- pie(states_count, 
+    main = "Questions by state", 
+    col = rainbow(length(states_count)))
+legend("topright",
+        legend = names(states_count), 
+        fill = rainbow(length(states_count)), 
+        cex = 0.8)
+```
+```{r}
+# Number of questions by state (bar)
+ggplot(data = question_state_data) +
+        geom_bar(mapping = aes(x = StateName, fill = StateName)) +
+        scale_x_discrete(labels = NULL) +
+        xlab("")
+```
+```{r}
+# Number of questions by income level (pie)
+client_data <- read.csv("clients.csv")
+question_client_data <- inner_join(question_data, 
+                                   client_data, 
+                                   by = c("AskedByClientUno" = "ClientUno"))
+question_client_data <- question_client_data %>% filter(!is.null(AnnualIncome))
+question_client_data <- question_client_data %>%
+        mutate(income_level = case_when(
+                AnnualIncome > 60000 ~ "VERY HIGH",
+                AnnualIncome > 45000 & AnnualIncome <= 60000 ~ "HIGH",
+                AnnualIncome > 30000 & AnnualIncome <= 45000 ~ "MEDIUM",
+                AnnualIncome > 15000 & AnnualIncome <= 30000 ~ "LOW",
+                AnnualIncome <= 15000 ~ "VERY LOW"
+        ))
+incomes_list <- split(question_client_data, question_client_data$income_level)
+incomes_count <- sapply(incomes_list, nrow)
+income_pie <- pie(incomes_count, 
+    main = "Questions by income level", 
+    col = viridis(length(incomes_count)))
+legend("topright",
+    legend = names(incomes_count), 
+    fill = viridis(length(incomes_count)), 
+    cex = 0.8)
+```
