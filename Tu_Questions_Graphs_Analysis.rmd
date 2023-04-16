@@ -105,11 +105,14 @@ ggplot(data = question_client_summary) +
 ```{r}
 # Examine whether number of questions varies significantly by income level (confidence level = 0.1)
 question_level_income_summary <- question_client_data %>%
-        group_by(income_level) %>%
+        group_by(income_level, AnnualIncome) %>%
         summarize(QuestionsCount = n()) %>%
         ungroup()
 question_level_income_summary$income_level <- ordered(question_level_income_summary$income_level, levels = c("VERY HIGH", "HIGH", "MEDIUM", "LOW", "VERY LOW"))
 level <- question_level_income_summary$income_level
 question_count <- question_level_income_summary$QuestionsCount
 pairwise.t.test(question_count, level, p.adj = "none")
+```
+```{r}
+boxplot(QuestionsCount ~ income_level, data = question_level_income_summary, outlier.shape = NA)
 ```
