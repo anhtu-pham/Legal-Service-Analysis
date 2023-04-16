@@ -28,7 +28,7 @@ category_pie <- pie(categories_count,
 legend("topright",
         legend = names(categories_count), 
         fill = viridis(length(categories_count)), 
-        cex = 0.8)
+        cex = 0.7)
 ```
 ```{r}
 # Number of questions by subcategory (bar)
@@ -78,10 +78,38 @@ question_client_data <- question_client_data %>%
 incomes_list <- split(question_client_data, question_client_data$income_level)
 incomes_count <- sapply(incomes_list, nrow)
 income_pie <- pie(incomes_count, 
-    main = "Questions by income level", 
-    col = viridis(length(incomes_count)))
+        main = "Questions by income level", 
+        col = viridis(length(incomes_count)))
 legend("topright",
-    legend = names(incomes_count), 
-    fill = viridis(length(incomes_count)), 
-    cex = 0.8)
+        legend = names(incomes_count), 
+        fill = viridis(length(incomes_count)), 
+        cex = 1.5)
+```
+```{r}
+# Number of questions by income level (with polar coordinates)
+ggplot(data = question_client_data) +
+        geom_bar(mapping = aes(x = income_level, fill = income_level), 
+                 width = 1) +
+        scale_fill_viridis_d() +
+        coord_polar()
+```
+```{r}
+# Number of questions asked by annual income
+question_client_summary <- question_client_data %>%
+        group_by(AnnualIncome) %>%
+        summarize(QuestionsCount = n())
+ggplot(data = question_client_summary) +
+        geom_point(mapping = aes(x = AnnualIncome, y = QuestionsCount)) +
+        labs(x = "Annual income", y = "Number of questions asked")
+```
+```{r}
+# Examine whether number of questions varies significantly by income level (confidence level = 0.1)
+question_level_income_summary <- question_client_data %>%
+        group_by(income_level) %>%
+        summarize(QuestionsCount = n()) %>%
+        ungroup()
+question_level_income_summary$income_level <- ordered(question_level_income_summary$income_level, levels = c("VERY HIGH", "HIGH", "MEDIUM", "LOW", "VERY LOW"))
+level <- question_level_income_summary$income_level
+question_count <- question_level_income_summary$QuestionsCount
+pairwise.t.test(question_count, level, p.adj = "none")
 ```
