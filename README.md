@@ -1,1 +1,1 @@
-# Team Nintendo 5DS project for DATAFEST 2023 (Legal service analysis)
+# Nintendo 5DS Team Project for DATAFEST 2023 (Legal Service Analysis)
